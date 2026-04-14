@@ -5,7 +5,6 @@ const CONFIG = {
     FIELDS: {
         NAME: 'entry.1940663717',
         CLASS: 'entry.358705380',
-        DUDI: 'entry.2064501222',
         STATUS: 'entry.675416788',
         REASON: 'entry.744173529',
         PHOTO: 'entry.881462619'
@@ -200,7 +199,7 @@ document.getElementById('btn-cancel-selfie').addEventListener('click', () => {
 });
 
 document.getElementById('btn-capture-selfie').addEventListener('click', () => {
-    capturePhoto('selfie-video', 'selfie-canvas', 'selfie-video'); // Use dummy for 3rd arg
+    capturePhoto('selfie-video', 'selfie-canvas', 'selfie-preview');
     
     // Confirm and Send
     if (confirm('Wajah teridentifikasi. Kirim presensi HADIR sekarang?')) {
@@ -232,7 +231,6 @@ async function sendPresensi(status, reason) {
     const formData = new FormData();
     formData.append(CONFIG.FIELDS.NAME, currentUser.name.toUpperCase());
     formData.append(CONFIG.FIELDS.CLASS, currentUser.class);
-    formData.append(CONFIG.FIELDS.DUDI, currentUser.dudi);
     formData.append(CONFIG.FIELDS.STATUS, status);
     
     if (reason) {
