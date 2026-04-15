@@ -152,7 +152,7 @@ function capturePhoto(videoId, canvasId, previewId) {
     const preview = document.getElementById(previewId);
     
     const context = canvas.getContext('2d');
-    canvas.width = 320; // Lower resolution for sheet performance
+    canvas.width = 320;
     canvas.height = 320;
     
     // Draw mirrored
@@ -228,32 +228,36 @@ document.getElementById('btn-submit-reason').addEventListener('click', () => {
 
 // --- FORM SUBMISSION ---
 async function sendPresensi(status, reason) {
-    const formData = new FormData();
-    formData.append(CONFIG.FIELDS.NAME, currentUser.name.toUpperCase());
-    formData.append(CONFIG.FIELDS.CLASS, currentUser.class);
-    formData.append(CONFIG.FIELDS.STATUS, status);
+    // Google Forms HARUS menggunakan URLSearchParams (application/x-www-form-urlencoded)
+    // FormData (multipart) tidak diterima oleh Google Forms via mode: 'no-cors'
+    const params = new URLSearchParams();
+    params.append(CONFIG.FIELDS.NAME, currentUser.name.toUpperCase());
+    params.append(CONFIG.FIELDS.CLASS, currentUser.class);
+    params.append(CONFIG.FIELDS.STATUS, status);
     
     if (reason) {
-        formData.append(CONFIG.FIELDS.REASON, reason);
+        params.append(CONFIG.FIELDS.REASON, reason);
     }
     
-    if (status === 'HADIR' && currentPhotoBase64) {
-        formData.append(CONFIG.FIELDS.PHOTO, currentPhotoBase64);
-    }
+    // Catatan: Google Forms tidak mendukung upload file via fetch,
+    // field PHOTO dilewati karena akan menyebabkan request gagal.
     
     // UI Feedback
     showNotif('Sedang mengirim...', '#0088cc');
     
     try {
-        // Since Google Form doesn't support CORS for direct Fetch response,
-        // we use mode: 'no-cors' which always returns a success-like opaque response.
+        // Google Forms memerlukan mode: 'no-cors' karena tidak support CORS.
+        // URLSearchParams memastikan format yang benar (application/x-www-form-urlencoded).
         await fetch(CONFIG.FORM_URL, {
             method: 'POST',
             mode: 'no-cors',
-            body: formData
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
         });
         
-        // Success
+        // Success (opaque response dari no-cors, diasumsikan berhasil jika tidak ada network error)
         const today = new Date().toISOString().split('T')[0];
         localStorage.setItem('last_presensi_date', today);
         checkTodayStatus();
@@ -262,7 +266,7 @@ async function sendPresensi(status, reason) {
         if (stream) stream.getTracks().forEach(t => t.stop());
     } catch (error) {
         console.error('Submission error:', error);
-        showNotif('Gagal mengirim!', '#e74c3c');
+        showNotif('Gagal mengirim! Cek koneksi internet.', '#e74c3c');
     }
 }
 
