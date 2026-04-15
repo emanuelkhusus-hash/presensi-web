@@ -1,7 +1,7 @@
 // Configuration
 const CONFIG = {
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyJnZhRAr9TUUZuWYbrbnNPoEIz_dzj1HJ4wGquO_eewotgCgY3G5QO8Lys0KEUZPSR/exec',
-    FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSfzvSjoOdZmNwY9r5bXAriAx5MSJEeYl75zKn1YFdJPqXvnow/viewform?usp=dialog',
+    FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSfzvSjoOdZmNwY9r5bXAriAx5MSJEeYl75zKn1YFdJPqXvnow/formResponse',
     FIELDS: {
         NAME: 'entry.1940663717',
         CLASS: 'entry.358705380',
@@ -130,8 +130,13 @@ async function startCamera(videoId) {
     }
     
     try {
+        // PERBAIKAN: Membatasi resolusi tangkapan kamera agar ringan
         stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "user" }, 
+            video: { 
+                facingMode: "user",
+                width: { ideal: 320 },
+                height: { ideal: 320 }
+            }, 
             audio: false 
         });
         const videoElement = document.getElementById(videoId);
@@ -160,7 +165,8 @@ function capturePhoto(videoId, canvasId, previewId) {
     context.scale(-1, 1);
     context.drawImage(video, 0, 0, 320, 320);
     
-    const base64 = canvas.toDataURL('image/jpeg', 0.8);
+    // PERBAIKAN: Menurunkan kualitas kompresi JPEG menjadi 30% (0.3)
+    const base64 = canvas.toDataURL('image/jpeg', 0.3);
     currentPhotoBase64 = base64.replace(/^data:image\/jpeg;base64,/, "");
     
     preview.src = base64;
@@ -228,7 +234,6 @@ document.getElementById('btn-submit-reason').addEventListener('click', () => {
 
 // --- FORM SUBMISSION ---
 async function sendPresensi(status, reason) {
-    // Google Forms HARUS menggunakan URLSearchParams (application/x-www-form-urlencoded)
     const params = new URLSearchParams();
     params.append(CONFIG.FIELDS.NAME, currentUser.name.toUpperCase());
     params.append(CONFIG.FIELDS.CLASS, currentUser.class);
@@ -238,7 +243,7 @@ async function sendPresensi(status, reason) {
         params.append(CONFIG.FIELDS.REASON, reason);
     }
     
-    // PERBAIKAN: Masukkan data foto base64 jika statusnya HADIR
+    // Memasukkan data foto yang sudah dikompresi jika statusnya HADIR
     if (status === 'HADIR' && currentPhotoBase64) {
         params.append(CONFIG.FIELDS.PHOTO, currentPhotoBase64);
     }
@@ -247,7 +252,6 @@ async function sendPresensi(status, reason) {
     showNotif('Sedang mengirim...', '#0088cc');
     
     try {
-        // Google Forms memerlukan mode: 'no-cors' karena tidak support CORS.
         await fetch(CONFIG.FORM_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -257,7 +261,6 @@ async function sendPresensi(status, reason) {
             body: params.toString()
         });
         
-        // Success (opaque response dari no-cors, diasumsikan berhasil jika tidak ada network error)
         const today = new Date().toISOString().split('T')[0];
         localStorage.setItem('last_presensi_date', today);
         checkTodayStatus();
