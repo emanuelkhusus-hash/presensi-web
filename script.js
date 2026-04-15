@@ -1,7 +1,10 @@
 // Configuration
 const CONFIG = {
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyJnZhRAr9TUUZuWYbrbnNPoEIz_dzj1HJ4wGquO_eewotgCgY3G5QO8Lys0KEUZPSR/exec',
-    FORM_URL: 'https://forms.gle/3JpN9aC6BgMNRA6Z7',
+    
+    // PERBAIKAN FINAL: Gunakan formResponse, bukan viewform atau forms.gle
+    FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSfzvSjoOdZmNwY9r5bXAriAx5MSJEeYl75zKn1YFdJPqXvnow/formResponse',
+    
     FIELDS: {
         NAME: 'entry.1940663717',
         CLASS: 'entry.358705380',
