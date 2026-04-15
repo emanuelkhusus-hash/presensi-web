@@ -229,7 +229,6 @@ document.getElementById('btn-submit-reason').addEventListener('click', () => {
 // --- FORM SUBMISSION ---
 async function sendPresensi(status, reason) {
     // Google Forms HARUS menggunakan URLSearchParams (application/x-www-form-urlencoded)
-    // FormData (multipart) tidak diterima oleh Google Forms via mode: 'no-cors'
     const params = new URLSearchParams();
     params.append(CONFIG.FIELDS.NAME, currentUser.name.toUpperCase());
     params.append(CONFIG.FIELDS.CLASS, currentUser.class);
@@ -239,15 +238,16 @@ async function sendPresensi(status, reason) {
         params.append(CONFIG.FIELDS.REASON, reason);
     }
     
-    // Catatan: Google Forms tidak mendukung upload file via fetch,
-    // field PHOTO dilewati karena akan menyebabkan request gagal.
+    // PERBAIKAN: Masukkan data foto base64 jika statusnya HADIR
+    if (status === 'HADIR' && currentPhotoBase64) {
+        params.append(CONFIG.FIELDS.PHOTO, currentPhotoBase64);
+    }
     
     // UI Feedback
     showNotif('Sedang mengirim...', '#0088cc');
     
     try {
         // Google Forms memerlukan mode: 'no-cors' karena tidak support CORS.
-        // URLSearchParams memastikan format yang benar (application/x-www-form-urlencoded).
         await fetch(CONFIG.FORM_URL, {
             method: 'POST',
             mode: 'no-cors',
