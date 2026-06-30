@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyJnZhRAr9TUUZuWYbrbnNPoEIz_dzj1HJ4wGquO_eewotgCgY3G5QO8Lys0KEUZPSR/exec',
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwMMlDtThv9Uo06NIbaxwi5AtA394HSOtf6wr3bjotj4Ociqh4rpGind8TYISRvU3pD/exec',
     
     // PERBAIKAN FINAL: Gunakan formResponse, bukan viewform atau forms.gle
     FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSfzvSjoOdZmNwY9r5bXAriAx5MSJEeYl75zKn1YFdJPqXvnow/formResponse',
